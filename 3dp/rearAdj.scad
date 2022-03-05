@@ -68,7 +68,7 @@ module vert(){
     }
 
    // Inner Cage
-    difference(){
+    *difference(){
         rotate([0,90,0])
             linear_extrude(height=x,center=true,convexity=10){
                 difference(){
@@ -114,7 +114,8 @@ difference(){
             }
         }
         vert();
-        translate([0,skew,yy/2+bt+3])
+        //Outer housing
+*        translate([0,skew,yy/2+bt+3])
             difference(){
                 trap(2*t+g);
                 trap(g+t/2);
@@ -131,7 +132,7 @@ difference(){
     translate([pm*12,0,-7])rotate([90,0,0]) cylinder(r=1.75,h=100,center=true);
     }    
     
-    rotate([90,0,0]) cylinder(r=1.75,h=100,center=true);
+
     
     translate([0,0,-23.5])cube([100,1.5*25.4,40],center=true);
     translate([0,0,-23.25])cube([35.5,32,40],center=true);
@@ -142,11 +143,18 @@ difference(){
         square([2*nr+2,2*range+2],center=true);
     }
 }
-rotate([90,0,0]) cylinder(r=nr,h=y-2*t,$fn=6,center=true);
-translate([0,0,-10]){rotate([0,0,30]){
-        cylinder(r=nr,$fn=6,h=10+bt+yy/2+3+y/2-t);
-        cylinder(r=nr+0.25,$fn=6,h=10+bt+yy/2+3);}
+    // Horiz adjust screwhole
+    rotate([-90,0,0]) {
         cylinder(r=1.75,h=100);
+        cylinder(r=nr,h=(y-2*t)/2,$fn=6);
+    }
+    // Vert adjust screwhole
+    translate([0,0,yy/2+bt+3-skew]){
+        rotate([0,0,30])cylinder(r=nr,$fn=6,h=y/2-t);
+        cylinder(r=1.75,h=100);
+    }
+    
+    translate([0,0,-10]){  
         cube([x-4*t,y-5*t,28-2*t],center=true);
         cube([8,y-5*t,28],center=true);
     }
