@@ -1,6 +1,6 @@
 $fs=0.1;
 $fa=1;
-sep = 25;
+sep = 27;
 sang = 180-atan(3.5/sep);
 difference(){
         linear_extrude(height=15,convexity=10){
@@ -30,11 +30,11 @@ difference(){
 
 translate([0,sep,0]) 
     difference(){ 
-        linear_extrude(height=1.2,convexity=10){
-            rotate(45)difference(){
+        translate([0,0,7.5])linear_extrude(height=1.2,convexity=10,center=true){
+            rotate(0)difference(){
                 union(){
                     circle(r=2.2);
-                    square([0.4,9],center=true);
+                    *square([0.4,9],center=true);
                     square([9,0.4],center=true);
                 }
                 circle(r=1.8);

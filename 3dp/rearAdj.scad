@@ -10,13 +10,16 @@ t=1.2;
 ri=0.6;
 g=1;
 bt=2;
-range=4;
+range=3;
 f = (2*ri+t)/c;
 yy = y+4*b+3*f*a;
 
-nr=3;
+nr=3.1;
+skew = 3;
 
-module scis2d(){
+module scis2d(b){
+    c = sqrt(a*a+b*b);
+    f = (2*ri+t)/c;
     translate([a/2-f*b/2+ri+t,0]){
         translate([0,0.5*b+0.5*f*a])rotate(atan(b/a))square([c,t],center=true);
         translate([0,1.5*b+1.5*f*a]) rotate(-atan(b/a))square([c,t],center=true);
@@ -41,8 +44,7 @@ module scis2d(){
     }
 }
 module vert(){
-    translate([0,0,yy/2+bt+3]){rotate([-90,0,0])difference(){
-    union(){
+    translate([0,0,yy/2+bt+3]){rotate([-90,0,0])translate([0,skew,0])difference(){
         linear_extrude(height=11,convexity=10,center=true){
             difference(){
                 square([x,y],center=true);
@@ -51,13 +53,10 @@ module vert(){
             for (a1=[0,180]) {
                 for (a2=[0,180])
                     rotate([0,a1,a2])
-                        translate([-x/2,y/2]) scis2d();
-                rotate([0,0,a1])translate([0,yy/2+t+bt/2]) square([x,bt],center=true);
+                        translate([-x/2,y/2]) scis2d(a2/180*skew+2-skew/2);
+                translate([0,-(yy/2+t+bt/2+skew)]) square([x,bt],center=true);
             }
         }
-        *translate([-12,0,0])rotate([90,0,0])cylinder(r=1.3+t,h=y/2+t);
-        *translate([0,0,2.5])rotate([90,0,0])cylinder(r=1.75+t,h=y/2+t);
-    }
  
 
     rotate([0,90,0])cylinder(r=0.5,h=100,center=true);
@@ -66,8 +65,9 @@ module vert(){
         sphere(r=t);
     }
    
-}
+    }
 
+   // Inner Cage
     difference(){
         rotate([0,90,0])
             linear_extrude(height=x,center=true,convexity=10){
@@ -96,10 +96,10 @@ module trap(r) {
     sphere(r=r);
     }
 }
-
+intersection(){
 difference(){
     union() {
-        translate([0,0,-16.5])linear_extrude(height=20,convexity=10){
+        translate([0,0,-10.5])linear_extrude(height=14,convexity=10){
             difference(){
                 square([x,y],center=true);
                 *square([7,2.75],center=true);
@@ -107,14 +107,14 @@ difference(){
             for (a1=[0,180])
                 for (a2=[0,180])
                     rotate([0,a1,a2])
-                        translate([-x/2,y/2]) scis2d();
-            difference(){
+                        translate([-x/2,y/2]) scis2d(-a2/180*skew+2+skew/2);
+            translate([0,skew])difference(){
                 offset(r=4*t+g)square([x-4*t,yy],center=true);
                 offset(r=g)square([x,yy],center=true);
             }
         }
         vert();
-        translate([0,0,yy/2+bt+3])
+        translate([0,skew,yy/2+bt+3])
             difference(){
                 trap(2*t+g);
                 trap(g+t/2);
@@ -123,26 +123,35 @@ difference(){
             
             
     }
-    for (pm=[-1,1])
-    translate([pm*(x/2+g/2),0,yy/2+bt+3])rotate([0,pm*90,0])cylinder(r=range+1-pm,h=100);    
+    translate([0,skew,0]){
+    for (pm=[-1,1]){
+    translate([pm*(x/2+g/2),0,yy/2+bt+3])rotate([0,pm*90,0] )linear_extrude(height=100){
+        offset(r=1)square(2*(range+1-pm),center=true);
+    }
+    translate([pm*12,0,-7])rotate([90,0,0]) cylinder(r=1.75,h=100,center=true);
+    }    
     
     rotate([90,0,0]) cylinder(r=1.75,h=100,center=true);
-    rotate([90,0,0]) cylinder(r=nr,h=y-2*t,$fn=6,center=true);
-    translate([12,0,-10])rotate([90,0,0]) cylinder(r=1.75,h=100,center=true);
-    translate([-12,0,-10])rotate([90,0,0]) cylinder(r=1.75,h=100,center=true);
+    
     translate([0,0,-23.5])cube([100,1.5*25.4,40],center=true);
     translate([0,0,-23.25])cube([35.5,32,40],center=true);
-    translate([0,0,-10]){rotate([0,0,30]){
+    
+    translate([0,0,yy+2*bt+3*t+g])linear_extrude(height=100){
+        translate([0,range+1])circle(r=nr+1);
+        translate([0,-range-1])circle(r=nr+1);
+        square([2*nr+2,2*range+2],center=true);
+    }
+}
+rotate([90,0,0]) cylinder(r=nr,h=y-2*t,$fn=6,center=true);
+translate([0,0,-10]){rotate([0,0,30]){
         cylinder(r=nr,$fn=6,h=10+bt+yy/2+3+y/2-t);
         cylinder(r=nr+0.25,$fn=6,h=10+bt+yy/2+3);}
         cylinder(r=1.75,h=100);
         cube([x-4*t,y-5*t,28-2*t],center=true);
         cube([8,y-5*t,28],center=true);
     }
-    translate([0,0,yy+2*bt+3*t+g])linear_extrude(height=100){
-        translate([0,range+1])circle(r=nr+1);
-        translate([0,-range-1])circle(r=nr+1);
-        square([2*nr+2,2*range+2],center=true);
-    }
-
+}
+rotate([90,0,0])linear_extrude(height=100,center=true){
+    translate([0,48.5])offset(r=9)square([24,100],center=true);
+}
 }

@@ -1,17 +1,50 @@
 $fa=1;
 $fs=0.1;
-
-linear_extrude(height=7){
+difference(){
+intersection(){
     difference(){
-        offset(r=1)offset(r=-1)union(){
-            translate([0,0]){square([22,12],center=true);
-            for (pm=[-1,1]) translate([11*pm,0])circle(r=6);}
-            difference(){
-                polygon(points=[[17,0],[17,-15],[10,-15],[-17,-4],[-17,0]]);
-                translate([37,-7.5])circle(r=21.2);
+        union(){
+            linear_extrude(height=8,convexity=10){
+                difference(){
+                    offset(r=1)offset(r=-1)union(){
+                        translate([0,0]){square([22,10],center=true);
+                        for (pm=[-1,1]) translate([10.5*pm+0.5,-1])circle(r=6);}
+                        difference(){
+                            polygon(points=[[17,0],[17,-20],[10,-20],[-13,-6.25],[-15,0]]);
+                            //translate([37,-10])circle(r=21.8);
+                        }
+                    }
+                    square([22,6],center=true);
+                    translate([11,0])circle(r=3);
+                }
+            }
+            *translate([0,0,7])linear_extrude(height=8){
+                square([22.1,6.1],center=true);
+                translate([11,0])circle(r=3.1);
             }
         }
-        square([22,6],center=true);
-        translate([11,0])circle(r=3);
+    *translate([-15,0,21])scale([2.15,1,1])rotate([90,0,0])cylinder(r=13,h=100,center=true);
+        translate([37,-10,0])rotate_extrude(){
+        difference(){
+       union(){translate([21,-1])square(4,center=true);
+           translate([21,9])square(4,center=true);
+           translate([20,4])square([3.6,8],center=true);
+       }
+       translate([22.8,1])circle(r=1); 
+       translate([22.8,7])circle(r=1); 
+        }
     }
+    
+    }
+    rotate([0,-90,0]) linear_extrude(height=100,center=true){
+        offset(r=1)offset(delta=-1)difference(){
+            translate([0,-20])square([8,25]);
+            //translate([0,-7])rotate(210)square(30);
+            //translate([17,5])scale([1.2,1])circle(r=8);
+        }
+    }
+}
+translate([0,0,4])rotate([90,0,0])cylinder(r=1.75,h=100);
+translate([0,-10,4])rotate([90,30,0])cylinder(r=.212/sqrt(3)*25.4,h=100,$fn=6);
+translate([0,0,4])rotate([-90,0,0])cylinder(r=3,h=100);
 }
