@@ -3,17 +3,33 @@ import numpy as np
 from picamera.array import PiRGBAnalysis
 from picamera.color import Color
 import time
-from subprocess import Popen
 import math
 
 dims = (160,160)
+targetCenter = (80,80)
+targetPixelsPerMm = 2
+targetDistance = 10
 
-class MyColorAnalyzer(PiRGBAnalysis):
+
+# Standard biathlon target apaprent diameters in milliradians
+standing_mrad = 115./50.
+prone_mrad = 45./50.
+
+scaledProne = targetDistance * prone_mrad/2.0
+scaledStanding = targetDistance * standing_mrad/2.0
+
+
+# Detect a hit when at least one pixel's red channel changes by more
+# than a threshold amount from one frame to the next
+# Then, wait one more frame (helps deal with rolling shutter),
+# find all of the pixels which have changed, calculate the centroid of that
+# area, and report according to how far off-center it is
+
+class TargetAnalyzer(PiRGBAnalysis):
     def __init__(self, camera):
-        super(MyColorAnalyzer, self).__init__(camera)
+        super(TargetAnalyzer, self).__init__(camera)
         self.lastRed = 255*np.ones(dims)
         self.triggered = False
-        self.count=0
         self.threshold = 32
         self.lastTrigTime = 0
         self.lockout = 0.5
@@ -25,19 +41,19 @@ class MyColorAnalyzer(PiRGBAnalysis):
             self.triggered=self.triggered+1
             msd = np.min(diffs)
             if (self.triggered==2):
-                x = 80*np.mean(inds[0])/dims[0]-40
-                y = 40-80*np.mean(inds[1])/dims[1]
-                if (math.sqrt(x*x+y*y)<10):
+                x =  (np.mean(inds[0])-center[0])/targetPixelsPerMm
+                y = -(np.mean(inds[1])-center[1])/targetPixelsPerMm
+                radius = math.sqrt(x*x+y*y)
+                # beep once for a standing hit, twice for a prone
+                if (radius < scaledProne):
                     print('\a')
-                result = "%.1f,%.1f"%(x,y)
+                if (radius < scaledStanding):
+                    print('\a')
+                result = "$.1f: (%.1f,%.1f)"%(radius,x,y)
                 print(result)
-                #                Popen(['/usr/bin/espeak',result])
-#                print("%d (%.3f): (%.2f,%.2f)"%(self.count,time.time()-startTime,np.mean(inds[0]),np.mean(inds[1])))
-                
             else:
                 if (msd<-self.threshold):
                     self.triggered=0
-
             self.lastRed=a[:,:,0].copy()
         else:
             currTime = time.time()
@@ -54,7 +70,7 @@ with open("data","w") as ofile:
     # Fix the camera's white-balance gains
         camera.awb_mode = 'off'
         camera.awb_gains = (1.4, 1.5)
-        with MyColorAnalyzer(camera) as analyzer:
+        with TargetAnalyzer(camera) as analyzer:
             camera.start_recording(analyzer, 'rgb')
             try:
                 while True:
