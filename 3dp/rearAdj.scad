@@ -43,7 +43,7 @@ module scis2d(b){
         }
     }
 }
-module vert(){
+module vert(skew){
     translate([0,0,yy/2+bt+3]){rotate([-90,0,0])translate([0,skew,0])difference(){
         linear_extrude(height=11,convexity=10,center=true){
             difference(){
@@ -64,11 +64,20 @@ module vert(){
         cube([x,y-6*t,y-6*t-2*g],center=true);
         sphere(r=t);
     }
-   
+    // Baffle slot
+    for (pm=[-1,1]) translate([0,0,pm*(10+11/2-g)])cube([t+2*g,20,20],center=true);
     }
 
+    // Baffle
+    rotate([0,90,0])linear_extrude(height=t,center=true){
+        difference(){
+            square([yy+2*bt,y],center=true);
+            square([yy+2*bt-2*t,11],center=true);
+            
+        }
+    }
    // Inner Cage
-    *difference(){
+    difference(){
         rotate([0,90,0])
             linear_extrude(height=x,center=true,convexity=10){
                 difference(){
@@ -96,6 +105,9 @@ module trap(r) {
     sphere(r=r);
     }
 }
+
+module rearAdj(skew){rotate([0,0,180]){
+translate([0,-skew,0]){
 intersection(){
 difference(){
     union() {
@@ -113,9 +125,9 @@ difference(){
                 offset(r=g)square([x,yy],center=true);
             }
         }
-        vert();
+        vert(skew);
         //Outer housing
-*        translate([0,skew,yy/2+bt+3])
+        translate([0,skew,yy/2+bt+3])
             difference(){
                 trap(2*t+g);
                 trap(g+t/2);
@@ -163,3 +175,7 @@ rotate([90,0,0])linear_extrude(height=100,center=true){
     translate([0,48.5])offset(r=9)square([24,100],center=true);
 }
 }
+}
+}
+}
+rearAdj(3);
