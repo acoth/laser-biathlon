@@ -1,10 +1,10 @@
-$fs=.25;
+$fs=0.25;
 $fa=2.5;
-fn = 20;
+fn = 10;
 include <Round-Anything/polyround.scad>
 
-barrelLength=90;
-barrelOuter = 12.5;
+barrelLength=200;
+barrelOuter = 16;
 frontSightSep = 13.5;
 supVspace = frontSightSep-barrelOuter*sqrt(3)/4+0.75;
 crossPitch=barrelLength/(2*round((barrelLength/(barrelOuter*1.6)-1)/2)+1);
@@ -13,44 +13,109 @@ tp = 1;
 tflex = 0.8;
 baseline = -10;
 rb = barrelOuter/2-tt/2;
-pfo = -7;
+pfo = -10;
 pl = 19.5;
 pw = 5.5;
 notch = 2.5;
 ph = rb+notch;
-
+m5w = 20;
+m5l = 28;
 
 
 
     use <rearAdj.scad>
 
-*translate([-115,0,-6.5])    rearAdj(3);
-*translate([-65,0,-9])m5ink();
+translate([-144.5,0,-6.5])    rearAdj(3);
+translate([-95,0,0]){
+    *m5ink();
+    m5Mount();
+}
 *color("red")laser();
-*laserHousing();
-*barrel(tt);
-*foot(45,rb+4);
-sightMount(10);
-translate([10-pfo,0,0])sight(13.5);
+laserHousing();
+barrel(tt);
+foot(145,rb+4);
+sightMount(barrelLength);
+*translate([barrelLength-pfo,0,0])sight(13.5);
 module unionMirror(mirNorm) {
     children();
     mirror(mirNorm) children();
 }
 
 module m5ink(){
+    translate([0,0,baseline+tt+.01])
 linear_extrude(height=16){
-    offset(r=3)offset(-3)square([56,40],center=true);
+    difference(){
+        offset(r=3.875)offset(-3.875)square([2*m5l,2*m5w],center=true);
+        for (pm1 = [-1,1]) for (pm2 = [-1,1])
+        translate([pm1*24.125,pm2*16.125])circle(d=4.75);
+    }
 }
+}
+module m5Mount(){
+    ri= 0.5;
+    translate([0,0,baseline])
+    difference(){
+        polyRoundExtrude([  [m5l+tt+ri,m5w+tt+ri,4.5+ri+tt/2],
+                            [-m5l-tt-ri-4,m5w+tt+ri,tt],
+                            [-m5l-tt-ri-4,m5w,0],
+                            [-m5l-tt-ri,17,0],[-m5l-tt-ri,-17,0],
+                            [-m5l-tt-ri-4,-m5w,0],
+                            [-m5l-tt-ri-4,-m5w-tt-ri,tt],
+                            [m5l+tt+ri,-m5w-tt-ri,4.5+ri+tt/2]],
+                        14.5+tt,tt/2-.01,tt/2-.01,fn=fn);
+        translate([0,0,tt])
+            polyRoundExtrude([  [m5l+ri,m5w+ri,4.5+ri],
+                            [-m5l-ri,m5w+ri,4.5+ri],
+                            [-m5l-ri,-m5w-ri,4.5+ri],
+                            [m5l+ri,-m5w-ri,4.5+ri]],
+                        14.51,-tt/2,ri,fn=fn);
+        for (pm1 = [-1,1]) for (pm2 = [-1,1]) translate([pm1*24.125,pm2*16.125])
+            cylinder(d=4.75,h=100,center=true);
+        translate([0,m5w+ri-.01,0])rotate([-90,0,0]) 
+                        polyRoundExtrude([[-18,-13,tt/2],
+                                          [-18,-3,tt/2],
+                                          [0  ,-3,tt/2],
+                                          [0  ,-13,tt/2]],
+                                        tt+.02,-tt/2,-tt/2,fn=fn);
+        translate([0,m5w+ri-.01,0])rotate([-90,0,0]) 
+                        polyRoundExtrude([[21,-13,tt/2],
+                                          [21,-3,tt/2],
+                                          [8  ,-3,tt/2],
+                                          [8  ,-13,tt/2]],
+                                        tt+.02,-tt/2,-tt/2,fn=fn);
+        translate([m5l+ri-.01,0,0])rotate([0,90,0]) 
+                        polyRoundExtrude([[-3,-7,tt/2],
+                                          [-3,7,tt/2],
+                                          [-13,7,tt/2],
+                                          [-13,-7,tt/2]],
+                                        tt+.02,0,-tt/2,fn=fn);
+        translate([0,0,-.01])rotate([0,0,0]) 
+                        polyRoundExtrude([[20,-16,tt/2],
+                                          [20,-9,tt/2],
+                                          [-3,-9,tt/2],
+                                          [-3,-16,tt/2]],
+                                        tt+.02,-tt/2,-tt/2,fn=fn);
+    }
+
 }
 module laserHousing(){
+    s = 11/sqrt(2);
     translate([0,0,-0.5*sqrt(2)]){
-        rotate([0,-90,0]) linear_extrude(height = 30){
-            rotate(45)
-            difference(){
-            offset(r=3)square(8,center=true);
-            offset(r=3)square(5,center=true);
-            }
+        rotate([0,-90,0]) difference(){
+            polyRoundExtrude([[s+tt,0,tt],
+                                [0,s+tt,tt],
+                                [-s-tt,0,tt],
+                                [0,-s-tt,tt]],
+                            30,tt/2,tt/2,fn=fn);
+            translate([0,0,-.01])polyRoundExtrude([[s,0,3],
+                              [0,s,3],
+                              [-s,0,4.5],
+                              [0,-s,3]],
+                            30.02,-tt/2,-tt/2,fn=fn);
         }
+        
+                                    
+        
         difference(convexity=10){
             rotate([90,0,0]) linear_extrude(height = 3,center=true,convexity=10){
             for (pm=[-1,1])translate([-15+9*pm,-6.5])difference(){
@@ -62,7 +127,23 @@ module laserHousing(){
             translate([0,0,1.55])rotate([0,90,0])cylinder(r=5,h=100,center=true);
         }
     }
+    rotate([0,-90,0])
+           polyRoundExtrude([[baseline,s+tt/sqrt(2),tt/2],
+                             [baseline,-s-tt/sqrt(2),tt/2],
+                             [0,-s-tt/sqrt(2),tt],
+                             [0,-7,tt/2],
+                             [baseline+3,-7,tt/2],
+                             [baseline+3,7,tt/2],
+                             [0,7,tt/2],
+                             [0,s+tt/sqrt(2),tt]],
+                            65+tt/2,0,tt/2-.01,fn=fn);
+    unionMirror([0,1,0]){
+        barpp(tt/2,[-30+tt/2,s,-0.5*sqrt(2)],[-65-tt/2,16,4.5]);
+        barpp(tt/2,[-30+tt/2,s,-0.5*sqrt(2)],[-65-tt/2,16,baseline+tt/2]);
+
+    }
 }
+
     
 module laser(){
     rotate([0,-90,0])cylinder(r=5,h=30);
@@ -76,7 +157,7 @@ module barpp(r,v1,v2){
     length = sqrt(dx*dx+dy*dy+dz*dz);
     phi = acos(dz/length);
     theta = atan2(dy,dx);
-    translate(v1)rotate([0,phi,theta]) cylinder(r=r,h=sqrt(dx*dx+dy*dy+dz*dz));    
+    translate(v1)rotate([0,phi,theta]) cylinder(r=r,h=length);    
 }
 
 module barrel(t){
@@ -177,29 +258,30 @@ module sightMount(barrelLength){
           [   -pfo, pw,ph]];
     
     translate([barrelLength,0,0]) {
-        barpp(tt/2,cp[0],pp[0]);
-        barpp(tt/2,cp[0],pp[1]);
-        barpp(tt/2,cp[1],pp[1]);
-        barpp(tt/2,cp[1],pp[0]);
-        barpp(tt/2,cp[2],pp[1]);
-        barpp(tt/2,cp[2],pp[0]);
-        barpp(tt/2,cp[2],pp[2]);
-        barpp(tt/2,cp[1],pp[3]);
-        barpp(tt/2,cp[3],pp[2]);
-        barpp(tt/2,cp[3],pp[3]);
-        barpp(tt/2,cp[5],pp[2]);
-        barpp(tt/2,cp[4],pp[3]);
+        union(){
+            barpp(tt/2,cp[0],pp[0]);
+            barpp(tt/2,cp[0],pp[1]);
+            barpp(tt/2,cp[1],pp[1]);
+            barpp(tt/2,cp[1],pp[0]);
+            barpp(tt/2,cp[2],pp[1]);
+            barpp(tt/2,cp[2],pp[0]);
+            barpp(tt/2,cp[2],pp[2]);
+            barpp(tt/2,cp[1],pp[3]);
+            barpp(tt/2,cp[5],pp[2]);
+            barpp(tt/2,cp[4],pp[3]);
+        }
         translate([-pl-tt/2-pfo,0,ph]) rotate([90,0,90]) {
             polyRoundExtrude([  [pw+tt/2,tt/2,tt/2],
                                 [notch,tt/2,tt/2],
-                                [0,-notch+tt/2,0],
+                                [0,-notch+tt/2,tt/8],
                                 [-notch,tt/2,tt/2],
                                 [-pw-tt/2,tt/2,tt/2],
                                 [-pw-tt/2,-tt/2,tt/2],
-                                [-notch-tt/sqrt(8),-tt/2,tt/2],
-                                [0,-notch-tt/2-tt/sqrt(8),tt/2+tt/sqrt(8)],
-                                [notch+tt/sqrt(8),-tt/2,,tt/2],
-                                [pw+tt/2,-tt/2,tt/2]],
+                                //[-notch-tt*sin(22.5),-tt/2,tt/2],
+                                [0,-notch+tt/2-tt*sqrt(2),tt/2],
+                                //[notch+tt*sin(22.5),-tt/2,tt/2],
+                                [pw+tt/2,-tt/2,tt/2]
+            ],
                             pl+tt,tt/2-.01,tt/2-.01,fn=fn);
             translate([0,0,pl+tt-tflex]){
                 polyRoundExtrude(
