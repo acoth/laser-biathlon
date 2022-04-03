@@ -9,33 +9,8 @@ ph = 2*rMinBarrel+notch+tw*(0.5);
 fn=10;
 
 
-module sightMount(){
- /*  cp = [   [-2*crossPitch,0,rb],
-            [  -crossPitch, sqrt(3)/2*rb,rb/2],
-            [  -crossPitch,-sqrt(3)/2*rb,rb/2],
-            [            0,0,rb],
-            [            0, sqrt(3)/2*rb,-rb/2],
-            [            0,-sqrt(3)/2*rb,-rb/2]];
-    
-
-    pp = [[-pl-pfo, pw,ph],
-          [-pl-pfo,-pw,ph],
-          [   -pfo,-pw,ph],
-          [   -pfo, pw,ph]];*/
-    
+module sightMount(){    
     translate([0,0,-pl-tw]) {
-        /*union(){
-            barpp(tw/2,cp[0],pp[0]);
-            barpp(tw/2,cp[0],pp[1]);
-            barpp(tw/2,cp[1],pp[1]);
-            barpp(tw/2,cp[1],pp[0]);
-            barpp(tw/2,cp[2],pp[1]);
-            barpp(tw/2,cp[2],pp[0]);
-            barpp(tw/2,cp[2],pp[2]);
-            barpp(tw/2,cp[1],pp[3]);
-            barpp(tw/2,cp[5],pp[2]);
-            barpp(tw/2,cp[4],pp[3]);
-        }*/
         rotate([0,0,-90]) {
             difference(){polyRoundExtrude([  
                         [pw+tw/2,tw/2,tw/2],
@@ -52,8 +27,6 @@ module sightMount(){
                         [tw*1.2,-notch,ri],
                         [(rMinBarrel+tw/2)*sqrt(3)-tw,-notch-rMinBarrel*3+1.5*tw,ri]],
                 pl+tw+2*epsilon,-ri,-ri,fn=fn);
-                        
-                
             }
             translate([0,0,pl+tw-tf]){
                 polyRoundExtrude(
@@ -87,4 +60,45 @@ module sightMount(){
             }
         }
     }      
+}
+
+module frontSight(h){
+    riRing=1;
+    tRing = 0.8;
+    x = h-(ph+tw/2+tp/2);
+    pe = pw+tw/2-tp;
+
+    // mount plate
+    difference(){
+        translate([0,0,h-x-tp])rotate([90,0,-90])
+            polyRoundExtrude([[pe,tp/2,tp/4],
+                              [pw+tw/2-2.5*tp,tp/2,tp/2],
+                              [5,x,tp/2],
+                              [-5,x,tp/2],
+                              [-pw-tw/2+2.5*tp,tp/2,tp/2],
+                              [-pe,tp/2,tp/4],
+                              [-pe,-tp/2,tp/4],
+                              [-notch,-tp/2,tp/4],
+                              [0,-notch-tp/2,tp/2],
+                              [notch,-tp/2,tp/4],
+                              [pe,-tp/2,tp/4]],
+                            pl,tp/2-.01,tp/2-.01,fn=fn);
+        translate([0,0,h])rotate([0,90,0])cylinder(r=4.5,h=100,center=true);
+        unionMirror([0,1,0])translate([-pl-tw/2,pw-tp*1,0])cube([tw,10,100]);
+    }
+    
+    
+    rotate([0,90,180]) translate([-h,0,pl/2]){
+        rotate_extrude(){
+                translate([4.5,0])
+                    offset(r=0.5)square([0.01,pl],center=true);
+        }
+        difference(){
+            for(pm=[-1,1]) rotate([0,90,pm*45])cylinder(r=0.3,h=9,center=true);
+            cylinder(r=riRing+tRing/2,h=10,center=true);
+        }
+        rotate_extrude(){
+            translate([riRing+tRing/2,0]) circle(r=tRing/2);
+        }
+    }          
 }

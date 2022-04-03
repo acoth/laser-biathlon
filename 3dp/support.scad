@@ -6,7 +6,7 @@ include <rearSight.scad>
 $fa=2.5;
 $fs=.25;
 
-hw=18.5;
+
 cf = 6.75/2;
 
 nh = nr;
@@ -36,8 +36,9 @@ adjustMax = supLength-rUpper-tw;
 
 
 support2();
-//translate([supLength+barrelExt,0,0]) sightMount();
-translate([-backExt,0,hLower])sight(3,-3);
+%translate([supLength+barrelExt,0,0]) frontSight(14.75);
+translate([-backExt,0,hLower+tw])rearSight(range,-range);
+
 
 module support2(){
     mirror([0,0,1]) rotate([0,90,0]) difference() {

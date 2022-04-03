@@ -10,6 +10,7 @@ epsilon = .01;
 fn=3*quality;
 nr = 6.5;
 rMinBarrel = (nr-tw/2)/sqrt(3);
+hw=18.5;
 /*
 barrelLength=300;
 barrelOuter = 16;
