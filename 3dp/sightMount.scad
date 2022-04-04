@@ -1,5 +1,5 @@
 include <common.scad>
-tp = 1;
+
 rb = 15-tw/2;
 pfo = 0;
 pl = 19.5;

@@ -1,6 +1,5 @@
 // Todo: 
-// Skeletonization
-// click-stops for adjustment
+// More Skeletonization?
 
 include <common.scad>
 
@@ -22,6 +21,17 @@ rAperture = 0.25;
 plateHeight = rAperture+2*range+tPlate/2+1;
 plateWidth = (y+gap)/2;
 knobR = m3nr+0.6;
+nStops = 4;
+rStop = 0.5;
+
+module clickStops() {
+    for (angle = [0:360/nStops:359]) rotate([0,0,angle])
+        translate([knobR/2,0,0]) {
+            rotate([0,90,0])cylinder(r=rStop,h=knobR/2,$fs=0.1);
+            sphere(r=rStop,$fs=0.1);
+            translate([knobR/2,0,0])sphere(r=rStop,$fs=0.1);
+        }
+}
 
 module scis2d(b){
     c = sqrt(a*a+b*b);
@@ -136,6 +146,7 @@ module vert(skew){
             rotate([0,0,30])cylinder(r=m3nr,$fn=6,h=y/2-epsilon+0.3);
             cylinder(r=1.75,h=100);
         }
+        translate([0,0,yy/2+2.5*t])clickStops();
         
     }
 }
@@ -158,13 +169,14 @@ module horiz(skew) {
         rotate([90,0,0]) {
             cylinder(r=1.75,h=100);
             cylinder(r=m3nr,h=(y-2*t)/2,$fn=6);
+            translate([0,0,skew+hw])clickStops();
         }
         translate([0,-skew,-springw+gap]) cube([x+epsilon,yy+2*t-epsilon,springw],center=true);
     }       
 }
 module outerHousing() {
     edgePoints = [
-            [1.75,hw,0],
+            [knobR+0.5,hw,0],
             [-springw/2+hUpper-hLower-5,hw,rUpper],
             [-springw/2+hUpper-hLower-tw,y/2+range+gap+t,gap],
             [springw/2+x-t/2+gap+t,y/2+range+gap+t,t+gap],
@@ -173,7 +185,7 @@ module outerHousing() {
             [springw/2+x-t/2+gap,y/2+range+gap,gap],
             [-springw/2+hUpper-hLower-t-tw,y/2+range+gap,gap+t],
             [-springw/2+hUpper-hLower-5,yy/2+t,rUpper-t],
-            [1.75,yy/2+t,0]];
+            [knobR+0.5,yy/2+t,0]];
     endPoints = [ edgePoints[0], edgePoints[1],
                   edgePoints[2],edgePoints[3],
                   edgePoints[4],[edgePoints[0].x,edgePoints[4].y,0]];
@@ -209,6 +221,13 @@ module outerHousing() {
                 [-(knobR+gap),-(knobR+gap+range),knobR+gap],
                 [-(knobR+gap),knobR+gap+range,knobR+gap]],
             t+2*epsilon,-t/2,-t/2,fn=10);
+        unionMirror([0,1,0])
+            translate([-x/2,-(y/2+range+gap+t/2),-springw/2+hUpper-hLower])
+                rotate([90,0,0])
+                    triArray(rows=3,cols=3.5,pitch=x/4,w=t,h=t, rr=t/2,rh1=0,rh2=0);
+        unionMirror([1,0,0])rotate([0,0,90])
+            translate([-1.5*x/5,x/5,springw/2+x+gap])
+                triArray(rows=2,cols=2.5,pitch=x/5,w=t,h=t,rr=t/2,rh1=0,rh2=0);
     }
 }
 module rearSight(skewy,skewz){
@@ -221,3 +240,6 @@ module rearSight(skewy,skewz){
         outerHousing();
     }
 }
+
+if (is_undef($submodule))
+    rearSight(range,-range);
