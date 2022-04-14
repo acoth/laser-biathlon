@@ -3,7 +3,7 @@
 // Fix header to stick
 // mounting to lower?
 
-    $submodule=1;
+$submodule=1;
 
 
 include <common.scad>
@@ -12,22 +12,13 @@ include <sightMount.scad>
 include <rearSight.scad>
 
 
-
-laserL = 30;
-laserD = 10;
-
-backExt = laserL+sqrt(pow(laserL,2)+pow(laserD,2))-ri+stickLength+1.5*tw+300*mil;
-supLength = 300-backExt;
-aspect = 1.8;
-sightXSep = 500;
 barrelExt = sightXSep-supLength-backExt-yy;
 adjustMin = 50;
 adjustMax = supLength-aspect*rUpper-tw-cf;
 
 upper();
 translate([-backExt,0,hLower+tw])rearSight(range,-range);
-*translate([supLength+barrelExt,0,0]) frontSight(14.75);
-
+if (!is_undef(opticalParts)) translate([supLength+barrelExt,0,0]) frontSight(14.75);
 
 module upper(){
     mirror([0,0,1]) rotate([0,90,0]){
@@ -35,12 +26,7 @@ module upper(){
         difference() {
         union(){
             //main body
-            translate([0,0,-backExt]) scale([1,1,aspect])polyRoundExtrude([
-                    [hUpper,hw,rUpper],
-                    [hUpper,-hw,rUpper],
-                    [hLower,-hw,rLower],
-                    [hLower,hw,rLower]],
-                (supLength+backExt)/aspect,rUpper,0,fn=10);
+            upperBody();
             //barrel extension
             polyRoundExtrude([
                     [(rMinBarrel+tw)*2,0,tw+ri],

@@ -1,12 +1,4 @@
-include <Round-Anything/polyround.scad>
 include <common.scad>
-h=10;
-t=1.5;
-s=8;
-$fs=0.25;
-sa = atan(s/2/h);
-
-
 
 module barAngle(p1,p0,p2,t,rscale=0.5){
     d1 = p1-p0;
@@ -26,13 +18,12 @@ module barAngle(p1,p0,p2,t,rscale=0.5){
     inPlaneAngle = -acos((d1*d2)/r1/r2);
     yjl = -t/2*(1+rscale);
     xjl = yjl/tan(inPlaneAngle/2);
-    echo ([xjl,yjl])
     translate(p0) {
          sphere(r=t/2);
          rotate([xAngle,phi1,theta1]){
              rotate([0,90,0])cylinder(r=t/2,h=r1);
              rotate([0,90,inPlaneAngle])cylinder(r=t/2,h=r2);
-             intersection(){
+             /*intersection(){
                 translate([xjl,yjl,0])rotate([0,0,90])rotate_extrude(angle=180+inPlaneAngle){
                     translate([-yjl,0])circle(r=t/2);
                     translate([-yjl,-t/2])square([100,t]);
@@ -44,52 +35,53 @@ module barAngle(p1,p0,p2,t,rscale=0.5){
                             [xjl,yjl],
                             [xjl*cos(inPlaneAngle),xjl*sin(inPlaneAngle)]]);
                 }
-            }
+            }*/
         }    
     }   
 }
 
 
-gridX = s;
-gridY = gridX*sqrt(3)/2;
 
 
-function computeZ(p) = let(rv=2-norm(p)/10) (rv<0) ? 0 : ((rv>1) ? 1 : rv);
-function uPoint(xi,yi) = [gridX*(xi+sign(yi)*(yi%2)/2),yi*gridY];
-function vPoint(xi,yi) = [gridX*(xi+sign(yi)*(yi%2)/2-0.5),(yi-1/3)*gridY];
-function fullU(xi,yi) = let(u=uPoint(xi,yi))[each u,h/2*computeZ(u)];
-function fullV(xi,yi) = [each vPoint(xi,yi),-h/2*computeZ(vPoint(xi,yi))];
-function uok(u) = u.z>0;
-function vok(v) = v.z<0;
 
-for (yi=[-10:10]) for (xi=[-10:10]){
+module vertexGen(xi,yi,zi,zFunction,t=1.5,fullU,fullV,uok,vok) {
+    
+    fullP = (zi>0) ? fullU : fullV;
+    fullQ = (zi>0) ? fullV : fullU;
+    okp   = (zi>0) ? uok : vok;
+    okq   = (zi>0) ? vok : uok;
+           
     xyadj = xi-1+(yi%2)*sign(yi);
-    u = fullU(xi,yi);
-    if (uok(u)) {
-        ai = [[xi+1,yi],[xyadj+1,yi+1],[xyadj,yi+1],
-              [xi-1,yi],[xyadj  ,yi-1],[xyadj+1,yi-1]];   
-        vai = [[xi,yi],[xi+1,yi],[xyadj+1,yi+1]];
-        okadj = [ for (a=ai) let(u=fullU(a[0],a[1])) if (uok(u)) u];
-        okvadj = [ for (a=vai) let(v=fullV(a[0],a[1])) if (vok(v)) v];
-        for (k = [0:len(okadj)-1]) {
-            barAngle(okadj[k],u,okadj[(k+1)%len(okadj)],t);
-            for (m = [0:len(okvadj)-1])
-                barAngle(okadj[k],u,okvadj[m],t);
+    p = fullP(xi,yi,zFunction);
+    if (okp(p)) {
+        pai = [[xi+1,yi],[xyadj+1,yi+1],[xyadj,yi+1],
+               [xi-1,yi],[xyadj  ,yi-1],[xyadj+1,yi-1]];   
+        qai = [[xi-1+zi,yi],[xi+zi,yi],[xyadj+zi,yi-1+2*zi]];
+        okpadj = [ for (a=pai) let(p=fullP(a[0],a[1],zFunction)) if (okp(p)) p];
+        okqadj = [ for (a=qai) let(q=fullQ(a[0],a[1],zFunction)) if (okq(q)) q];
+        if (len(okpadj)>1) for (k = [0:len(okpadj)-1]) {
+            barAngle(okpadj[k],p,okpadj[(k+1)%len(okpadj)],t);
+            *for (m = [0:len(okqadj)-1])
+                barAngle(okpadj[k],p,okqadj[m],t);
         }
-        for (k=[0:len(okvadj)-1])
-            barAngle(okvadj[k],u,okvadj[(k+1)%len(okvadj)],t);
-    }
-    v = fullV(xi,yi);
-    *if (vok(v)) {
-        ai = [[xi+1,yi],[xyadj+1,yi+1],[xyadj,yi+1],[xi-1,yi],[xyadj,yi-1],[xyadj+1,yi-1]];   
-        vai = [[xi-1,yi],[xi,yi],[xyadj,yi-1]];
-        okadj = [ for (a=ai) let(v=fullV(a[0],a[1])) if (vok(v)) v];
-        okvadj = [ for (a=vai) let(u=fullU(a[0],a[1])) if (uok(u)) u];
-        for (k = [0:len(okadj)-2]) {
-            barAngle(okadj[k],v,okadj[k+1],t);
-            for (m = [0:len(okvadj)-1])
-                barAngle(okadj[k],v,okvadj[m],t);
-        }
-        barAngle(okadj[len(okadj)-1],v,okadj[0],t);
-    }  
+        if (len(okqadj)>1)for (k=[0:len(okqadj)-1])
+            barAngle(okqadj[k],p,okqadj[(k+1)%len(okqadj)],t);
+    }    
 }
+
+module cellFill(lowerLeft,upperRight,gridX,thickness,zFunction) {
+    gridY = sqrt(3)/2*gridX;
+    xArray = [floor(lowerLeft.x/gridX-1) : ceil(upperRight.x/gridX+1)];
+    yArray = [floor(lowerLeft.y/gridY-1) : ceil(upperRight.y/gridY+1)];
+
+    fullU = function (xi,yi,zFunction) let(u=[gridX*(xi+sign(yi)*(yi%2)/2),yi*gridY])
+                                [each u,zFunction(u)];
+    fullV = function (xi,yi,zFunction) let(v=[gridX*(xi+sign(yi)*(yi%2)/2-0.5),(yi-1/3)*gridY])
+                                [each v,-zFunction(v)];
+    uok = function (u) u.z>0;
+    vok = function (v) v.z<0;
+
+    for (xi = xArray) for (yi = yArray) for (zi = [0,1]) 
+        vertexGen(xi,yi,zi,zFunction,thickness,fullU,fullV,uok,vok);
+}
+

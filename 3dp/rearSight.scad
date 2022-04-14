@@ -3,15 +3,7 @@
 
 include <common.scad>
 
-a = 11.5;
-b = 2;
-c = sqrt(a*a+b*b);
-x=35;
-y=15;
-t=1.2;
-rSpring=0.6;
-f = (2*rSpring+t)/c;
-yy = y+4*b+3*f*a;
+
 m3nr=3;
 springw = y-2*(t+gap);
 range = 3;
@@ -70,14 +62,14 @@ module aperturePlate(){
                     [ y/2-2*t, -t, 0],
                     [ -t ,-t ,0],
                     [ -t,plateWidth,0]],
-                tPlate,tPlate/2-epsilon,tPlate/2-epsilon,fn=10);
+                tPlate,tPlate/2-epsilon,tPlate/2-epsilon,fn=5*quality);
             polyRoundExtrude([
                     [rApertureFit*sqrt(3)/2,rApertureFit/2,t/2],
                     [0,rApertureFit,t/2],
                     [-rApertureFit*sqrt(3)/2,rApertureFit/2,t/2],
                     [-rApertureFit*sqrt(3)/2,-t/2,0],
                     [rApertureFit*sqrt(3)/2,-t/2,0]],
-                2*tPlate+t,tPlate/2,0,fn=10);
+                2*tPlate+t,tPlate/2,0,fn=5*quality);
         }
         rotate_extrude() {
             translate([0,tPlate/2-epsilon])difference(){
@@ -197,22 +189,22 @@ module outerHousing() {
     difference() {
         rotate([0,-90,0]) unionMirror([0,1,0]) {
             translate([0,0,-x/2-2*gap])  polyRoundExtrude(
-                edgePoints, x+4*gap,0,0,fn=10);
+                edgePoints, x+4*gap,0,0,fn=5*quality);
             difference() {
                 unionMirror([0,0,1])translate([0,0,-x/2-t-2*gap]) 
-                    polyRoundExtrude(endPoints,t+epsilon,0,t,fn=10);
+                    polyRoundExtrude(endPoints,t+epsilon,0,t,fn=5*quality);
                 translate([0,0,-x/2-t-2*gap-epsilon])polyRoundExtrude([
                         [outBot,range+1,t],
                         [outBot,-2*t,t],
                         [outTop,-2*t,t],
                         [outTop,range+1,t]],
-                    t+3*epsilon,-t/2,-t/2,fn=10);
+                    t+3*epsilon,-t/2,-t/2,fn=5*quality);
              translate([0,0,x/2+2*gap-2*epsilon])polyRoundExtrude([
                         [inBot,plateWidth+gap/2,t],
                         [inBot,-2*t,t],
                         [inTop,-2*t,t],
                         [inTop,plateWidth+gap/2,t]],
-                    t+3*epsilon,-t/2,-t/2,fn=10);   
+                    t+3*epsilon,-t/2,-t/2,fn=5*quality);   
             } 
         }
         translate([0,0,springw/2+x+gap-t/2-epsilon])polyRoundExtrude([
@@ -220,14 +212,16 @@ module outerHousing() {
                 [  knobR+gap ,-(knobR+gap+range),knobR+gap],
                 [-(knobR+gap),-(knobR+gap+range),knobR+gap],
                 [-(knobR+gap),knobR+gap+range,knobR+gap]],
-            t+2*epsilon,-t/2,-t/2,fn=10);
-        unionMirror([0,1,0])
-            translate([-x/2,-(y/2+range+gap+t/2),-springw/2+hUpper-hLower])
-                rotate([90,0,0])
-                    triArray(rows=3,cols=3.5,pitch=x/4,w=t,h=t, rr=t/2,rh1=0,rh2=0);
-        unionMirror([1,0,0])rotate([0,0,90])
-            translate([-1.5*x/5,x/5,springw/2+x+gap])
-                triArray(rows=2,cols=2.5,pitch=x/5,w=t,h=t,rr=t/2,rh1=0,rh2=0);
+            t+2*epsilon,-t/2,-t/2,fn=5*quality);
+        union(){
+            unionMirror([0,1,0])
+                translate([-x/2,-(y/2+range+gap+t/2),-springw/2+hUpper-hLower])
+                    rotate([90,0,0])
+                        triArray(rows=3,cols=3.5,pitch=x/4,w=t,h=t, rr=t/2,rh1=0,rh2=0);
+            unionMirror([1,0,0])rotate([0,0,90])
+                translate([-1.5*x/5,x/5,springw/2+x+gap])
+                    triArray(rows=2,cols=2.5,pitch=x/5,w=t,h=t,rr=t/2,rh1=0,rh2=0);
+        }
     }
 }
 module rearSight(skewy,skewz){
@@ -235,7 +229,7 @@ module rearSight(skewy,skewz){
         horiz(skewy);
         translate([0,skewy,0]) {
             vert(skewz);
-            %translate([-x/2,0,skewz+yy/2+t+springw/2])aperturePlate();
+            if (!is_undef(opticalParts)) translate([-x/2,0,skewz+yy/2+t+springw/2])aperturePlate();
         }
         outerHousing();
     }

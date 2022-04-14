@@ -1,6 +1,7 @@
 include <Round-Anything/polyround.scad>
 
-quality = 1;
+quality =  (is_undef(quality)) ? 1 :quality;
+
 horizSightSep = 500;
 leftHanded = false;
 gap = 1;
@@ -12,10 +13,17 @@ nr = 6.5;
 rMinBarrel = (nr-tw/2)/sqrt(3);
 hw=18.5;
 mil=.0254;
-$fa=2.5;
-$fs=.25;
-
-
+lw = 16;
+a = 11.5;
+b = 2;
+c = sqrt(a*a+b*b);
+x=35;
+y=15;
+t=1.2;
+rSpring=0.6;
+f = (2*rSpring+t)/c;
+yy = y+4*b+3*f*a;
+rearSightDepth = yy+8*t;
 cf = 6.75/2;
 
 nh = nr;
@@ -31,6 +39,13 @@ rLower = nh+tw;
 rUpper = rLower;
 upperFlat = hw-rUpper;
 tp = 1;
+laserL = 30;
+laserD = 10;
+
+backExt = laserL+sqrt(pow(laserL,2)+pow(laserD,2))-ri+stickLength+1.5*tw+300*mil;
+supLength = 300-backExt;
+aspect = 1.8;
+sightXSep = 500;
 
 // Produce a symmetrical copy of child object, mirrored around plane with
 // specified normal vector
@@ -50,7 +65,7 @@ module barpp(r,v1,v2){
 }
 
 module triHole(r,h,rr,rh1,rh2){
-    translate([0,0,-h/2-epsilon]) polyRoundExtrude([
+    *translate([0,0,-h/2-epsilon]) polyRoundExtrude([
                     [-r,-r*sqrt(3)/3,rr],
                     [r,-r*sqrt(3)/3,rr],
                     [0,r*sqrt(3)*2/3,rr]],
@@ -65,4 +80,12 @@ module triArray(rows,cols,pitch,w,h, rr,rh1,rh2){
             translate([xi*pitch, (yi-(yi%2)/3+0.5)*py/2, 0])
                rotate([0,0,180*(yi%2)])triHole( pitch/2-w*sqrt(3)/2, h, rr,rh1,rh2);
     }
+}
+module upperBody() {
+    translate([0,0,-backExt]) scale([1,1,aspect])polyRoundExtrude([
+                    [hUpper,hw,rUpper],
+                    [hUpper,-hw,rUpper],
+                    [hLower,-hw,rLower],
+                    [hLower,hw,rLower]],
+                (supLength+backExt)/aspect,rUpper,0,fn=10);
 }
