@@ -229,7 +229,7 @@ module rearSight(skewy,skewz){
         horiz(skewy);
         translate([0,skewy,0]) {
             vert(skewz);
-            if (!is_undef(opticalParts)) translate([-x/2,0,skewz+yy/2+t+springw/2])aperturePlate();
+            *if (!is_undef(opticalParts)) translate([-x/2,0,skewz+yy/2+t+springw/2])aperturePlate();
         }
         outerHousing();
     }

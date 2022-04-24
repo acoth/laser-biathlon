@@ -1,7 +1,7 @@
 $fa=1;
 $fs=0.1;
 
-module trigger() {
+/*module trigger() {
     translate([-9,-20,0]){
         
     scale([1,1.2,1])rotate([0,0,-45])scale([1,1.5,2]){
@@ -27,9 +27,9 @@ module trigger() {
             scale([1,1.2])rotate(-45)scale([1,1.5])circle(r=10);
         }
     }}
-}
+}*/
 
-//trigger();
+module trigger(){
 translate([-30,0,0])
 rotate([0,0,-22.5]){
     intersection(){
@@ -55,7 +55,7 @@ rotate([0,0,-22.5]){
 
 }
 intersection(){
-linear_extrude(height=10,center=true){difference(){union(){
+linear_extrude(height=10,center=true,convexity=10){difference(){union(){
     translate([-30,0]) rotate(22.5)polygon(points=[[30,0],[40,0],[39.8,13],[32.5,13],[30-2.5,0]]);
     translate([-1.25,25]) circle(r=3.77);
     }
@@ -68,8 +68,10 @@ translate([-30,0,0])rotate([90,0,22.5]) linear_extrude(height=100,center=true){
     translate([0,-5])square([50,10]);}
 }
 }
+}
+
 ro = 5;
-linear_extrude(height=10,center=true){
+*linear_extrude(height=10,center=true){
     translate([7.5,5])square([2,31.01-ro]);
     translate([1.01-ro/2,35])square([17-ro,2],center=true);
     translate([9.5-ro,36-ro])intersection(){

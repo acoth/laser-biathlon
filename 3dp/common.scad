@@ -89,3 +89,24 @@ module upperBody() {
                     [hLower,hw,rLower]],
                 (supLength+backExt)/aspect,rUpper,0,fn=10);
 }
+module barFillet(r,q1,q2){
+    
+    p1 = (q1.z<q2.z) ? q1 : q2;
+    p2 = (q1.z<q2.z) ? q2 : q1;    
+        
+    d = p2-p1;
+    theta = atan2(d.y,d.x);
+    horizDist = norm([d.x,d.y]);
+    translate(p1) rotate([0,0,theta])
+    multmatrix([
+        [norm([horizDist,d.z])/d.z, 0, horizDist/d.z, 0],
+        [0, 1, 0, 0],
+        [0, 0, 1, 0]])
+    polyRoundExtrude([
+        [r/2,r/2,r/2-epsilon],
+        [r/2,-r/2,r/2-epsilon],
+        [-r/2,-r/2,r/2-epsilon],
+        [-r/2,r/2,r/2-epsilon]],
+        d.z,-r/2+epsilon,-r/2+epsilon,fn=10);
+    
+}

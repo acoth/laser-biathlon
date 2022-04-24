@@ -16,9 +16,9 @@ barrelExt = sightXSep-supLength-backExt-yy;
 adjustMin = 50;
 adjustMax = supLength-aspect*rUpper-tw-cf;
 
-upper();
-translate([-backExt,0,hLower+tw])rearSight(range,-range);
-if (!is_undef(opticalParts)) translate([supLength+barrelExt,0,0]) frontSight(14.75);
+*upper();
+*translate([-backExt,0,hLower+tw])rearSight(range,-range);
+*if (!is_undef(opticalParts)) translate([supLength+barrelExt,0,0]) frontSight(14.75);
 
 module upper(){
     mirror([0,0,1]) rotate([0,90,0]){
@@ -148,7 +148,12 @@ module stickHole(){
             [-6,-20,0],
             [6,-20,0]],
         15,0,ri,fn=10);
-            
+     translate([0,0,hLower])polyRoundExtrude([
+            [7.5,34,2],
+            [-7.5,34,2],
+            [-7.5,stickLength+7.8,2],
+            [7.5,stickLength+7.8,2]],
+        100,0,0,fn=10);
     
 }
 module stickShell(){ 
