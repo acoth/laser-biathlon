@@ -1,22 +1,11 @@
+$in_lower = 1;
 include <common.scad>
 include <shelify.scad>
+include <butt.scad>
 
 $fs=0.75;
 $fa=5;
 
-triggerTop = 10+epsilon;
-triggerDrop = triggerTop+25;
-
-gripHeight = 70;
-handHeight = 20;
-
-triggerToButt = 216;
-triggerX = 77;
-
-sw1 = 8;
-sw2 = 4;
-
-bottom = hLower-triggerDrop-gripHeight;
 
 module stockThinning(thin2) {
     rotate([90,0,0]) translate([0,0,-epsilon]) {
@@ -98,7 +87,10 @@ module triggerBlockHole(){
 }
 
 module lower() {
-
+translate([-backExt-rearSightDepth+triggerX-triggerToButt,0,(bottom+hLower+10)/2]){
+    butt(0*(triggerToButt-90));
+    
+}
     difference(){ union(){ difference(){
         union(){ 
             difference()   { base(0); base(tw);}
@@ -112,7 +104,7 @@ module lower() {
         triggerHole(0);
         triggerBlockHole();
         rr=3;
-        difference(){
+ *       difference(){
      translate([-backExt-rearSightDepth+65,0,hLower-triggerDrop+6])cube([28,50,32],center=true);
  minkowski() {
      intersection(){
@@ -127,6 +119,8 @@ sphere(r=rr);
 }
         }
         intersection(){base(0);unionMirror([0,1,0])translate([-backExt-rearSightDepth,lw-tw,0])stockThinning(lw-sw1);}
+        intersection(){base(0);translate([-backExt-rearSightDepth+triggerX-triggerToButt,0,(bottom+hLower+10)/2]) rotate([90,90,0])channel(-gap-epsilon);}
+        
     }
     unionMirror([0,1,0])translate([-backExt-rearSightDepth,lw,0])stockThinning(lw-sw1);
         translate([0,0,500])cube(1000,center=true);
@@ -134,7 +128,7 @@ sphere(r=rr);
         mirror([0,0,1])rotate([0,90,0])upperBody();
 
         rotate([90,0,0]) translate([-backExt-rearSightDepth,0,-sw1+tw])
-        polyRoundExtrude([
+        *polyRoundExtrude([
                 [30-tw,hLower-triggerDrop+5-tw,10-tw],
                 [12-tw,bottom+tw,10-tw],
                 [-15+tw,bottom+tw,30-tw],
@@ -143,24 +137,24 @@ sphere(r=rr);
                 [-250,hLower-10-tw,10],
                 [30-tw,hLower-10-tw,30]],
             2*sw1-2*tw,sw1-tw-epsilon,sw1-tw-epsilon,fn=10);
-    translate([-backExt-rearSightDepth+52,0,-triggerDrop+9.5]) rotate([90,0,180])triggerSwitch();
+    translate([-backExt-rearSightDepth+52,0,-triggerDrop+9.5]) rotate([90,0,180])
+        triggerSwitch();
     unionMirror([0,1,0])translate([-backExt-rearSightDepth,lw-tw/2,0])rotate([90,0,0]) translate([0,0,-tw/2-epsilon]) polyRoundExtrude([
             [52+lw+tw,bottom+handHeight+lw+tw,tw],
             [149-lw-tw,bottom+handHeight+lw+tw,tw],
             [136-lw-tw,bottom+handHeight+lw+tw+10,70],
             [134-lw-tw,hLower-triggerDrop+2,tw],
-//            [135-lw-3*tw,hLower-triggerDrop+5,tw],
             [110,hLower-triggerDrop-lw/2-tw,12.5+lw+tw],
-//            [110-lw-tw,hLower-triggerDrop-lw/2-tw,tw],
             [61+lw+tw,hLower-triggerDrop-lw/2-tw,tw],
             [61+lw+tw,bottom+handHeight+lw+tw+10,40]],
         tw+2*epsilon,-tw/2,-tw/2,fn=10);
+        
+        translate([300,0,0]) cube(1000,center=true);
     }
     translate([-backExt-rearSightDepth+triggerX,0,-triggerDrop+1]) rotate([90,0,180])trigger();
       
 }
 
-*trigger();
 rt = 38;
 module trigger() {
     translate([0,0,-5])

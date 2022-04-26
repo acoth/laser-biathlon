@@ -2,7 +2,7 @@ include <Round-Anything/polyround.scad>
 
 quality =  (is_undef(quality)) ? 1 :quality;
 
-horizSightSep = 500;
+//horizSightSep = 466;
 leftHanded = false;
 gap = 1;
 tf = 0.8;
@@ -25,12 +25,26 @@ f = (2*rSpring+t)/c;
 yy = y+4*b+3*f*a;
 rearSightDepth = yy+8*t;
 cf = 6.75/2;
+sw1 = 8;
+triggerTop = 10+epsilon;
+triggerDrop = triggerTop+25;
+
+gripHeight = 70;
+handHeight = 20;
+
+triggerToButt = 216;
+triggerX = 77;
+
+
+sw2 = 4;
 
 nh = nr;
 
 ri = tw/2;
 hUpper = rMinBarrel*2+tw-ri;
 hLower = -nh-tw-0*cf-rMinBarrel-tw;
+bottom = hLower-triggerDrop-gripHeight;
+
     stickWidth  = 25.5;
     stickLength = 48.2;
     stickHeight = 13.7;
@@ -45,7 +59,7 @@ laserD = 10;
 backExt = laserL+sqrt(pow(laserL,2)+pow(laserD,2))-ri+stickLength+1.5*tw+300*mil;
 supLength = 300-backExt;
 aspect = 1.8;
-sightXSep = 500;
+sightXSep = 469;
 
 // Produce a symmetrical copy of child object, mirrored around plane with
 // specified normal vector
