@@ -4,7 +4,7 @@
 include <common.scad>
 
 
-m3nr=3;
+
 springw = y-2*(t+gap);
 range = 3;
 tPlate = 1;
@@ -15,6 +15,7 @@ plateWidth = (y+gap)/2;
 knobR = m3nr+0.6;
 nStops = 4;
 rStop = 0.5;
+rbot = 2;
 
 module clickStops() {
     for (angle = [0:360/nStops:359]) rotate([0,0,angle])
@@ -147,7 +148,7 @@ module horiz(skew) {
         linear_extrude(height=springw,center=true,convexity=10){
             difference() {
                 square([x,y],center=true);
-                offset(r=t)square([x-4*t,y-7*t],center=true);
+                translate([2*t,0])offset(r=t)square([x,y-7*t],center=true);
             }
             for (pm=[-1,1]) rotate(90+90*pm) 
                 unionMirror([1,0])translate([-x/2,y/2]) scis2d(2+skew/2*pm); 
@@ -168,7 +169,7 @@ module horiz(skew) {
 }
 module outerHousing() {
     edgePoints = [
-            [knobR+0.5,hw,0],
+            [-springw/2-rbot,hw,rbot],
             [-springw/2+hUpper-hLower-5,hw,rUpper],
             [-springw/2+hUpper-hLower-tw,y/2+range+gap+t,gap],
             [springw/2+x-t/2+gap+t,y/2+range+gap+t,t+gap],
@@ -177,7 +178,9 @@ module outerHousing() {
             [springw/2+x-t/2+gap,y/2+range+gap,gap],
             [-springw/2+hUpper-hLower-t-tw,y/2+range+gap,gap+t],
             [-springw/2+hUpper-hLower-5,yy/2+t,rUpper-t],
-            [knobR+0.5,yy/2+t,0]];
+            [-springw/2-rbot+t,yy/2+t,rbot-t],
+            [-springw/2-rbot+t,11,0],
+            [-springw/2-rbot,11,0]];
     endPoints = [ edgePoints[0], edgePoints[1],
                   edgePoints[2],edgePoints[3],
                   edgePoints[4],[edgePoints[0].x,edgePoints[4].y,0]];
@@ -213,26 +216,34 @@ module outerHousing() {
                 [-(knobR+gap),-(knobR+gap+range),knobR+gap],
                 [-(knobR+gap),knobR+gap+range,knobR+gap]],
             t+2*epsilon,-t/2,-t/2,fn=5*quality);
-        union(){
-            unionMirror([0,1,0])
-                translate([-x/2,-(y/2+range+gap+t/2),-springw/2+hUpper-hLower])
-                    rotate([90,0,0])
-                        triArray(rows=3,cols=3.5,pitch=x/4,w=t,h=t, rr=t/2,rh1=0,rh2=0);
-            unionMirror([1,0,0])rotate([0,0,90])
-                translate([-1.5*x/5,x/5,springw/2+x+gap])
-                    triArray(rows=2,cols=2.5,pitch=x/5,w=t,h=t,rr=t/2,rh1=0,rh2=0);
-        }
+        
+        unionMirror([0,1,0])
+            translate([-x/2,-(y/2+range+gap+t/2),-springw/2+hUpper-hLower])
+                rotate([90,0,0])
+                    triArray(rows=3,cols=3.5,pitch=x/4,w=t,h=t, rr=t/2,rh1=0,rh2=0);
+        unionMirror([1,0,0])rotate([0,0,90])
+            translate([-1.5*x/5,x/5,springw/2+x+gap])
+                triArray(rows=2,cols=2.5,pitch=x/5,w=t,h=t,rr=t/2,rh1=0,rh2=0);
+        rotate([90,0,0])cylinder(r=knobR+gap,h=100);
+        
     }
 }
 module rearSight(skewy,skewz){
-    translate([-yy/2-3*t,0,springw/2]){
-        horiz(skewy);
-        translate([0,skewy,0]) {
-            vert(skewz);
-            *if (!is_undef(opticalParts)) translate([-x/2,0,skewz+yy/2+t+springw/2])aperturePlate();
+    translate([-yy/2-3*t,0,springw/2])difference(){
+        
+            union(){
+                horiz(skewy);
+                translate([0,skewy,0]) {
+                    vert(skewz);
+                    *if (!is_undef(opticalParts)) translate([-x/2,0,skewz+yy/2+t+springw/2])aperturePlate();
+                }
+                outerHousing();
+            }
+            translate([-x/2-gap/2,0,-lw+tw+3])rotate([0,-90,0])intersection(){
+                cylinder(r=lw-tw,h=100);
+                cube([200,22,200],center=true);
+            }
         }
-        outerHousing();
-    }
 }
 
 if (is_undef($submodule))

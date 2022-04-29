@@ -64,11 +64,11 @@ module triggerBlock() {
                 polyRoundExtrude([
                     [42,hLower-triggerDrop-tw,5],
                     [85,hLower-triggerDrop-tw,3],
-                    [95,hLower-triggerTop+tw,2],
-                    [90,hLower-triggerTop+tw,2],
-                    [90,hLower+epsilon,2],
-                    [95,hLower+epsilon,0],
-                    [95,hLower+tw,tw/2],
+                    [96,hLower-triggerTop+tw,2],
+                    [92,hLower-triggerTop+tw,2],
+                    [92,hLower+epsilon,2],
+                    [96,hLower+epsilon,0],
+                    [96,hLower+tw,tw/2],
                     
                     [42,hLower+tw,tw/2]],
                     2*(lw-tw+epsilon),-tw,-tw,fn=10);                   
@@ -94,9 +94,14 @@ translate([-backExt-rearSightDepth+triggerX-triggerToButt,0,(bottom+hLower+10)/2
     difference(){ union(){ difference(){
         union(){ 
             difference()   { base(0); base(tw);}
-            intersection() { base(0); triggerHole(tw); }
-            intersection() { base(0); triggerBlock();  }
-            intersection() {base(0); translate([-40,0,-40])cube([50,2*(lw+tw),tw],center=true);}
+            intersection() { 
+                base(0); 
+                union(){
+                    triggerHole(tw); 
+                    triggerBlock();  
+                    translate([-40,0,-40])cube([50,2*(lw+tw),tw],center=true);
+                    }
+                }
             translate([-backExt-rearSightDepth+50+lw+2.25,0,bottom+handHeight+lw+1])rotate([90,0,0])barFillet(2,[0,0,lw-tw+epsilon],[0,0,-lw+tw-epsilon]);
             translate([-backExt-rearSightDepth+150-lw-1.25,0,bottom+handHeight+lw+1])rotate([90,0,0])barFillet(2,[0,0,lw-tw+epsilon],[0,0,-lw+tw-epsilon]);
             
@@ -118,25 +123,24 @@ sphere(r=rr);
 }
 }
         }
-        intersection(){base(0);unionMirror([0,1,0])translate([-backExt-rearSightDepth,lw-tw,0])stockThinning(lw-sw1);}
-        intersection(){base(0);translate([-backExt-rearSightDepth+triggerX-triggerToButt,0,(bottom+hLower+10)/2]) rotate([90,90,0])channel(-gap-epsilon);}
-        
+        intersection(){
+            base(0);
+            union(){
+                unionMirror([0,1,0])translate([-backExt-rearSightDepth,lw-tw,0])stockThinning(lw-sw1);
+                translate([-backExt-rearSightDepth+triggerX-triggerToButt-20,0,(bottom+hLower+10)/2]) {rotate([90,90,0])channel(-gap-epsilon,120+tw);
+                difference(){
+                    buttHole(tw,adjLength+52);
+                    translate([70,0,0])buttHole(0,adjLength-20);    
+                    }
+                    }
+                }
+            }       
     }
     unionMirror([0,1,0])translate([-backExt-rearSightDepth,lw,0])stockThinning(lw-sw1);
         translate([0,0,500])cube(1000,center=true);
-        translate([-backExt-rearSightDepth/2,0,tw])cube([rearSightDepth+2*epsilon,2*hw+tw,-2*hLower],center=true);
+        translate([-backExt-rearSightDepth/2+t,0,tw])cube([rearSightDepth-t,2*hw+tw,-2*hLower],center=true);
         mirror([0,0,1])rotate([0,90,0])upperBody();
 
-        rotate([90,0,0]) translate([-backExt-rearSightDepth,0,-sw1+tw])
-        *polyRoundExtrude([
-                [30-tw,hLower-triggerDrop+5-tw,10-tw],
-                [12-tw,bottom+tw,10-tw],
-                [-15+tw,bottom+tw,30-tw],
-                [-35+tw,bottom+20+tw,30+tw],
-                [-250,bottom+20+tw,10],
-                [-250,hLower-10-tw,10],
-                [30-tw,hLower-10-tw,30]],
-            2*sw1-2*tw,sw1-tw-epsilon,sw1-tw-epsilon,fn=10);
     translate([-backExt-rearSightDepth+52,0,-triggerDrop+9.5]) rotate([90,0,180])
         triggerSwitch();
     unionMirror([0,1,0])translate([-backExt-rearSightDepth,lw-tw/2,0])rotate([90,0,0]) translate([0,0,-tw/2-epsilon]) polyRoundExtrude([
@@ -148,11 +152,25 @@ sphere(r=rr);
             [61+lw+tw,hLower-triggerDrop-lw/2-tw,tw],
             [61+lw+tw,bottom+handHeight+lw+tw+10,40]],
         tw+2*epsilon,-tw/2,-tw/2,fn=10);
-        
-        translate([300,0,0]) cube(1000,center=true);
+        translate([-backExt-rearSightDepth+triggerX-triggerToButt+chanT,0,(bottom+hLower+10)/2]) rotate([90,90,0]){
+            for (sn = [0,1]) translate([0,sn*(47+chanT/2),0]) {
+            channel(-gap-2*epsilon-tw,47);
+            rotate([0,0,90])translate([0,0,-1.5*tw-gap-3*epsilon])polyRoundExtrude([
+                    [chanT+tw/2,cf,cf],
+                    [47-tw/2-chanT/2,cf,cf],
+                    [47-tw/2-chanT/2,-cf,cf],
+                    [chanT+tw/2,-cf,cf]],
+                3*tw+2*gap+6*epsilon,-tw/2,-tw/2,fn=10);
+            }                        
+        }
+    translate([-backExt-rearSightDepth+triggerX-triggerToButt,0,(bottom+hLower+10)/2]) buttHole(-gap,adjLength);
+    translate([-backExt-rearSightDepth+triggerX-triggerToButt,0,(bottom+hLower+10)/2])rotate([90,90,0]){
+        translate([-chanW-chanT/2-tw,8-tw/2,0])rotate([0,0,90])triArray(1,5.5,20-tw,1.5*tw,2*(sw1+epsilon),tw*0.75,-tw*0.75,-tw*0.75);
+        mirror([1,0,0])
+        translate([-chanW-chanT/2-tw,8-tw/2,0])rotate([0,0,90])triArray(1,4.5,20-tw,1.5*tw,2*(sw1+epsilon),tw*0.75,-tw*0.75,-tw*0.75);
+        }    
     }
-    translate([-backExt-rearSightDepth+triggerX,0,-triggerDrop+1]) rotate([90,0,180])trigger();
-      
+    translate([-backExt-rearSightDepth+triggerX,0,-triggerDrop+1]) rotate([90,0,180])trigger();      
 }
 
 rt = 38;
@@ -223,8 +241,17 @@ module triggerSwitch(){
         translate([-7,3])rotate(180)square(18);
     }
     //mounting holes
-    translate([-5.5,10.5]) cylinder(r=1.6,h=100,center=true);
-    translate([5.5,-12.5]) cylinder(r=1.6,h=100,center=true);
+    translate([-5.5,10.5,0]){
+        cylinder(r=1.6,h=100,center=true);
+        unionMirror([0,0,1]) translate([0,0,5.5+tw]) cylinder(r=m3nr,h=100);
+    }
+    translate([5.5,-12.5,0]){
+        cylinder(r=1.6,h=100,center=true);
+        unionMirror([0,0,1]) translate([0,0,5.5+tw]) cylinder(r=m3nr,h=100);
+    }
 }
 
-if (is_undef($submodule)) translate([70,0,0])lower();
+if (is_undef($submodule)) difference(){
+    lower();
+    translate([0,-500,0])cube(1000,center=true);
+}

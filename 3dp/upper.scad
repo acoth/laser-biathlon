@@ -16,9 +16,20 @@ barrelExt = sightXSep-supLength-backExt-yy;
 adjustMin = 50;
 adjustMax = supLength-aspect*rUpper-tw-cf;
 
-*upper();
-*translate([-backExt,0,hLower+tw])rearSight(range,-range);
-*if (!is_undef(opticalParts)) translate([supLength+barrelExt,0,0]) frontSight(14.75);
+*upperAndRear();
+module upperAndRear(){
+    difference(){
+        union(){
+            upper();
+            translate([-backExt,0,hLower+tw])rearSight(range,-range);
+        }
+        minkowski(){
+            translate([-backExt+4.5-gap+epsilon,0,(hLower+hUpper)/2-tw]) cube([9-2*tw,20-2*tw,20-2*tw],center=true);
+            sphere(r=tw);
+        }
+    }
+    *if (!is_undef(opticalParts)) translate([supLength+barrelExt,0,0]) frontSight(14.75);
+}
 
 module upper(){
     mirror([0,0,1]) rotate([0,90,0]){
@@ -86,16 +97,16 @@ module upper(){
                         [-rMinBarrel-tw,nr+tw,ri]],
                     supLength+backExt+2*epsilon,0,ri,fn=10);
                 //middle
-                translate([0,0,-backExt+tw])polyRoundExtrude([
+                translate([0,0,-backExt+tw+8.5])polyRoundExtrude([
                         [hLower+rLower+tw,hw-tw,ri],
                         [hUpper-rUpper+2*tw,hw-tw,rUpper],
                         [hUpper-tw,upperFlat+2*tw,tw*1.5],
                         [hUpper-3*rMinBarrel-tw/2,(3*rMinBarrel)/sqrt(3)+tw*4/sqrt(3),ri]],
-                    supLength+backExt+2*epsilon,0,ri,fn=10);
+                    supLength+backExt+2*epsilon,0,0,fn=10);
                 
             }
         }
-        translate([-rMinBarrel,0,-laserL-sqrt(pow(laserD,2)+pow(laserL,2))+ri+epsilon])       rotate([-90,0,-90])stickHole();
+        *translate([-rMinBarrel,0,-laserL-sqrt(pow(laserD,2)+pow(laserL,2))+ri+epsilon])       rotate([-90,0,-90])stickHole();
         rotate([0,-90,180])laserHousingHole(laserD,laserL);
         barrelTriPitch = 3*rMinBarrel+tw;
         topTriPitch = hw-rUpper+tw;
@@ -130,7 +141,7 @@ module stickHole(){
             [-400*mil,stickLength+300*mil,0],
             [-400*mil,stickLength-50*mil,0]],
         100*mil,0,0,fn=10);
-    mirror([0,0,1]) {
+    *mirror([0,0,1]) {
         translate([0,0,-100*mil]) polyRoundExtrude([
             [ 400*mil,stickLength-50*mil,0],
             [ 400*mil,stickLength+300*mil,0],
@@ -139,8 +150,8 @@ module stickHole(){
         100,0,0,fn=10);       
     }
     unionMirror([1,0,0])translate([stickWidth/2-3.75,9.5,0])mirror([0,0,1]){
-        translate([0,0,-epsilon])cylinder(r=1.4,h=100);
-        translate([0,0,tw])cylinder(r=2.5,h=100);
+        translate([0,0,-epsilon])cylinder(r=1.4,h=40);
+        translate([0,0,tw])cylinder(r=2.5,h=40);
     }
     translate([0,0,stickHeight-6]) polyRoundExtrude([
             [6,tw,0],
@@ -148,12 +159,18 @@ module stickHole(){
             [-6,-20,0],
             [6,-20,0]],
         15,0,ri,fn=10);
-     translate([0,0,hLower])polyRoundExtrude([
-            [7.5,34,2],
-            [-7.5,34,2],
-            [-7.5,stickLength+7.8,2],
-            [7.5,stickLength+7.8,2]],
+     translate([0,0,hLower+rMinBarrel+tw]){polyRoundExtrude([
+            [8.5,34,2],
+            [-8.5,34,2],
+            [-8.5,stickLength+7.8,0.5],
+            [8.5,stickLength+7.8,0.5]],
         100,0,0,fn=10);
+         translate([0,0,-tw-epsilon])polyRoundExtrude([
+            [5.5,34,0],
+            [-5.5,34,0],
+            [-5.5,stickLength+7.8,0],
+            [5.5,stickLength+7.8,0]],
+        100,0,0,fn=10);}
     
 }
 module stickShell(){ 

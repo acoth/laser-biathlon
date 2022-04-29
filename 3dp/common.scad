@@ -25,7 +25,7 @@ f = (2*rSpring+t)/c;
 yy = y+4*b+3*f*a;
 rearSightDepth = yy+8*t;
 cf = 6.75/2;
-sw1 = 8;
+sw1 = 8.5;
 triggerTop = 10+epsilon;
 triggerDrop = triggerTop+25;
 
@@ -60,6 +60,7 @@ backExt = laserL+sqrt(pow(laserL,2)+pow(laserD,2))-ri+stickLength+1.5*tw+300*mil
 supLength = 300-backExt;
 aspect = 1.8;
 sightXSep = 469;
+m3nr=3;
 
 // Produce a symmetrical copy of child object, mirrored around plane with
 // specified normal vector
@@ -79,7 +80,7 @@ module barpp(r,v1,v2){
 }
 
 module triHole(r,h,rr,rh1,rh2){
-    *translate([0,0,-h/2-epsilon]) polyRoundExtrude([
+    translate([0,0,-h/2-epsilon]) polyRoundExtrude([
                     [-r,-r*sqrt(3)/3,rr],
                     [r,-r*sqrt(3)/3,rr],
                     [0,r*sqrt(3)*2/3,rr]],
