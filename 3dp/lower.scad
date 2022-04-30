@@ -1,6 +1,6 @@
 $in_lower = 1;
 include <common.scad>
-include <shelify.scad>
+//include <shelify.scad>
 include <butt.scad>
 
 $fs=0.75;
@@ -139,7 +139,7 @@ sphere(r=rr);
     unionMirror([0,1,0])translate([-backExt-rearSightDepth,lw,0])stockThinning(lw-sw1);
         translate([0,0,500])cube(1000,center=true);
         translate([-backExt-rearSightDepth/2+t,0,tw])cube([rearSightDepth-t,2*hw+tw,-2*hLower],center=true);
-        mirror([0,0,1])rotate([0,90,0])upperBody();
+        mirror([0,0,1])rotate([0,90,0])upperBody(0);
 
     translate([-backExt-rearSightDepth+52,0,-triggerDrop+9.5]) rotate([90,0,180])
         triggerSwitch();

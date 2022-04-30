@@ -62,6 +62,10 @@ aspect = 1.8;
 sightXSep = 469;
 m3nr=3;
 
+barrelExt = sightXSep-supLength-backExt-yy;
+adjustMin = 50;
+adjustMax = supLength-aspect*rUpper-tw-cf;
+
 // Produce a symmetrical copy of child object, mirrored around plane with
 // specified normal vector
 module unionMirror(mirNorm) {
@@ -96,13 +100,13 @@ module triArray(rows,cols,pitch,w,h, rr,rh1,rh2){
                rotate([0,0,180*(yi%2)])triHole( pitch/2-w*sqrt(3)/2, h, rr,rh1,rh2);
     }
 }
-module upperBody() {
+module upperBody(to) {
     translate([0,0,-backExt]) scale([1,1,aspect])polyRoundExtrude([
-                    [hUpper,hw,rUpper],
-                    [hUpper,-hw,rUpper],
-                    [hLower,-hw,rLower],
-                    [hLower,hw,rLower]],
-                (supLength+backExt)/aspect,rUpper,0,fn=10);
+                    [hUpper+to,hw+to,rUpper+to],
+                    [hUpper+to,-hw-to,rUpper+to],
+                    [hLower-to,-hw-to,rLower+to],
+                    [hLower-to,hw+to,rLower+to]],
+                (supLength+backExt)/aspect,rUpper+to,0,fn=10);
 }
 module barFillet(r,q1,q2){
     
@@ -125,3 +129,17 @@ module barFillet(r,q1,q2){
         d.z,-r/2+epsilon,-r/2+epsilon,fn=10);
     
 }
+
+function offsetRP(t,p0,p1,p2) = let(
+    d10 = [p1.x-p0.x,p1.y-p0.y], 
+    d12 = [p1.x-p2.x,p1.y-p2.y],
+    u10 = d10/norm(d10),
+    u12 = d12/norm(d12),
+    v012= (u10+u12)/norm(u10+u12),
+    side = sign(cross(u12,u10)),
+    o012= v012*t*side*sqrt(2/(1-u10*u12))
+    
+    ) [p1.x+o012.x,p1.y+o012.y,p1.z+side*t];
+
+function offsetRPoints(t,rPoints) = let(np=len(rPoints))
+[ for (k = [0:np-1]) offsetRP(t,rPoints[k],rPoints[(k+1)%np],rPoints[(k+2)%np])];

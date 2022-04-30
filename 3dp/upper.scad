@@ -12,10 +12,6 @@ include <sightMount.scad>
 include <rearSight.scad>
 
 
-barrelExt = sightXSep-supLength-backExt-yy;
-adjustMin = 50;
-adjustMax = supLength-aspect*rUpper-tw-cf;
-
 *upperAndRear();
 module upperAndRear(){
     difference(){
@@ -37,7 +33,7 @@ module upper(){
         difference() {
         union(){
             //main body
-            upperBody();
+            upperBody(0);
             //barrel extension
             polyRoundExtrude([
                     [(rMinBarrel+tw)*2,0,tw+ri],

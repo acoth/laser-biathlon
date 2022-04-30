@@ -1,5 +1,5 @@
 include <common.scad>
-include <shelify.scad>
+//include <shelify.scad>
 
 
 bws = 24;
