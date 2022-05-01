@@ -4,7 +4,7 @@ include <upper.scad>
 stopHeight=30;
 stopWidth = hw-rLower;
 stopRR = 7.5;
-grommitT=3;
+grommitT=4;
 slotInT = cf-gap;
 stopPoints = [[20,hLower-tw,stopRR+tw],
             [8,hLower-stopHeight,stopRR+tw],
@@ -72,7 +72,7 @@ module handStop(aLoc){
             }
             
             translate([-4,0,0])cylinder(r=cf,h=100,center=true);
-            translate([-4,0,hLower+tw])cylinder(r=nr,h=100,$fn=6);
+            translate([-4,0,hLower+tw])cylinder(r=nr*2/sqrt(3),h=100,$fn=6);
         }
         
                 

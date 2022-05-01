@@ -220,10 +220,10 @@ module outerHousing() {
         unionMirror([0,1,0])
             translate([-x/2,-(y/2+range+gap+t/2),-springw/2+hUpper-hLower])
                 rotate([90,0,0])
-                    triArray(rows=3,cols=3.5,pitch=x/4,w=t,h=t, rr=t/2,rh1=0,rh2=0);
+                    triArray(rows=3,cols=3.5,pitch=x/4,w=t,h=t, rr=t/2,rh1=-t/2,rh2=-t/2);
         unionMirror([1,0,0])rotate([0,0,90])
             translate([-1.5*x/5,x/5,springw/2+x+gap])
-                triArray(rows=2,cols=2.5,pitch=x/5,w=t,h=t,rr=t/2,rh1=0,rh2=0);
+                triArray(rows=2,cols=2.5,pitch=x/5,w=t,h=t,rr=t/2,rh1=-t/2,rh2=-t/2);
         rotate([90,0,0])cylinder(r=knobR+gap,h=100);
         
     }

@@ -1,7 +1,6 @@
 // Todo:
 // wire holes
 // Fix header to stick
-// mounting to lower?
 
 $submodule=1;
 
@@ -12,7 +11,10 @@ include <sightMount.scad>
 include <rearSight.scad>
 
 
-*upperAndRear();
+if (is_undef($in_assembly)){
+  upperAndRear();
+}
+
 module upperAndRear(){
     difference(){
         union(){
@@ -102,7 +104,7 @@ module upper(){
                 
             }
         }
-        *translate([-rMinBarrel,0,-laserL-sqrt(pow(laserD,2)+pow(laserL,2))+ri+epsilon])       rotate([-90,0,-90])stickHole();
+        
         rotate([0,-90,180])laserHousingHole(laserD,laserL);
         barrelTriPitch = 3*rMinBarrel+tw;
         topTriPitch = hw-rUpper+tw;
@@ -137,14 +139,12 @@ module stickHole(){
             [-400*mil,stickLength+300*mil,0],
             [-400*mil,stickLength-50*mil,0]],
         100*mil,0,0,fn=10);
-    *mirror([0,0,1]) {
-        translate([0,0,-100*mil]) polyRoundExtrude([
-            [ 400*mil,stickLength-50*mil,0],
-            [ 400*mil,stickLength+300*mil,0],
-            [-400*mil,stickLength+300*mil,0],
-            [-400*mil,stickLength-50*mil,0]],
-        100,0,0,fn=10);       
-    }
+    mirror([0,0,1])polyRoundExtrude([
+            [2,stickLength,tw],
+            [-2,stickLength,tw],
+            [-2,-2,tw],
+            [2,-2,tw]],
+        4,tw,-tw,fn=10);
     unionMirror([1,0,0])translate([stickWidth/2-3.75,9.5,0])mirror([0,0,1]){
         translate([0,0,-epsilon])cylinder(r=1.4,h=40);
         translate([0,0,tw])cylinder(r=2.5,h=40);

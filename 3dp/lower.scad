@@ -1,6 +1,5 @@
 $in_lower = 1;
 include <common.scad>
-//include <shelify.scad>
 include <butt.scad>
 
 $fs=0.75;
@@ -21,7 +20,7 @@ module stockThinning(thin2) {
                 [-10,hLower-triggerDrop-10,20],
                 [12-lw,bottom+5,30],
                 [100,bottom,0]],
-            thin2,1*(thin2/2-epsilon),1*(-thin2/2-epsilon),fn=10);
+            thin2,1*(thin2/2-epsilon),1*(-thin2/2-epsilon),fn=10*quality);
     }
    
 }
@@ -51,7 +50,7 @@ module stockThinning(thin2) {
 
 module base(to) {
     rotate([90,0,0]) translate([-backExt-rearSightDepth,0,-lw+to])
-            polyRoundExtrude( offsetRPoints(to,basePoints) ,2*(lw-to),lw-epsilon-to,lw-epsilon-to,fn=10,convexity=30);
+            polyRoundExtrude( offsetRPoints(to,basePoints) ,2*(lw-to),lw-epsilon-to,lw-epsilon-to,fn=10*quality,convexity=30);
 }
 
 module triggerHole(to) {
@@ -84,93 +83,6 @@ module triggerBlockHole(){
                     [87,hLower-triggerTop-epsilon,1],
                     [87,hLower-triggerTop-epsilon-17,0]],
                     11+2*epsilon,0.5,0.5,fn=10);
-}
-
-module lower() {
-translate([-backExt-rearSightDepth+triggerX-triggerToButt,0,(bottom+hLower+10)/2]){
-    butt(0*(triggerToButt-90));
-    
-}
-    difference(){ union(){ difference(){
-        union(){ 
-            difference()   { base(0); base(tw);}
-            intersection() { 
-                base(0); 
-                union(){
-                    triggerHole(tw); 
-                    triggerBlock();  
-                    translate([-40,0,-40])cube([50,2*(lw+tw),tw],center=true);
-                    }
-                }
-            translate([-backExt-rearSightDepth+50+lw+2.25,0,bottom+handHeight+lw+1])rotate([90,0,0])barFillet(2,[0,0,lw-tw+epsilon],[0,0,-lw+tw-epsilon]);
-            translate([-backExt-rearSightDepth+150-lw-1.25,0,bottom+handHeight+lw+1])rotate([90,0,0])barFillet(2,[0,0,lw-tw+epsilon],[0,0,-lw+tw-epsilon]);
-            
-        }
-        triggerHole(0);
-        triggerBlockHole();
-        rr=3;
- *       difference(){
-     translate([-backExt-rearSightDepth+65,0,hLower-triggerDrop+6])cube([28,50,32],center=true);
- minkowski() {
-     intersection(){
-        difference(){ 
-               base(rr-epsilon);
-               triggerHole(rr-epsilon);
-        }
-        translate([-backExt-rearSightDepth+65,0,hLower-triggerDrop+6])cube([28,50,32],center=true);
-    }
-sphere(r=rr);
-}
-}
-        }
-        intersection(){
-            base(0);
-            union(){
-                unionMirror([0,1,0])translate([-backExt-rearSightDepth,lw-tw,0])stockThinning(lw-sw1);
-                translate([-backExt-rearSightDepth+triggerX-triggerToButt-20,0,(bottom+hLower+10)/2]) {rotate([90,90,0])channel(-gap-epsilon,120+tw);
-                difference(){
-                    buttHole(tw,adjLength+52);
-                    translate([70,0,0])buttHole(0,adjLength-20);    
-                    }
-                    }
-                }
-            }       
-    }
-    unionMirror([0,1,0])translate([-backExt-rearSightDepth,lw,0])stockThinning(lw-sw1);
-        translate([0,0,500])cube(1000,center=true);
-        translate([-backExt-rearSightDepth/2+t,0,tw])cube([rearSightDepth-t,2*hw+tw,-2*hLower],center=true);
-        mirror([0,0,1])rotate([0,90,0])upperBody(0);
-
-    translate([-backExt-rearSightDepth+52,0,-triggerDrop+9.5]) rotate([90,0,180])
-        triggerSwitch();
-    unionMirror([0,1,0])translate([-backExt-rearSightDepth,lw-tw/2,0])rotate([90,0,0]) translate([0,0,-tw/2-epsilon]) polyRoundExtrude([
-            [52+lw+tw,bottom+handHeight+lw+tw,tw],
-            [149-lw-tw,bottom+handHeight+lw+tw,tw],
-            [136-lw-tw,bottom+handHeight+lw+tw+10,70],
-            [134-lw-tw,hLower-triggerDrop+2,tw],
-            [110,hLower-triggerDrop-lw/2-tw,12.5+lw+tw],
-            [61+lw+tw,hLower-triggerDrop-lw/2-tw,tw],
-            [61+lw+tw,bottom+handHeight+lw+tw+10,40]],
-        tw+2*epsilon,-tw/2,-tw/2,fn=10);
-        translate([-backExt-rearSightDepth+triggerX-triggerToButt+chanT,0,(bottom+hLower+10)/2]) rotate([90,90,0]){
-            for (sn = [0,1]) translate([0,sn*(47+chanT/2),0]) {
-            channel(-gap-2*epsilon-tw,47);
-            rotate([0,0,90])translate([0,0,-1.5*tw-gap-3*epsilon])polyRoundExtrude([
-                    [chanT+tw/2,cf,cf],
-                    [47-tw/2-chanT/2,cf,cf],
-                    [47-tw/2-chanT/2,-cf,cf],
-                    [chanT+tw/2,-cf,cf]],
-                3*tw+2*gap+6*epsilon,-tw/2,-tw/2,fn=10);
-            }                        
-        }
-    translate([-backExt-rearSightDepth+triggerX-triggerToButt,0,(bottom+hLower+10)/2]) buttHole(-gap,adjLength);
-    translate([-backExt-rearSightDepth+triggerX-triggerToButt,0,(bottom+hLower+10)/2])rotate([90,90,0]){
-        translate([-chanW-chanT/2-tw,8-tw/2,0])rotate([0,0,90])triArray(1,5.5,20-tw,1.5*tw,2*(sw1+epsilon),tw*0.75,-tw*0.75,-tw*0.75);
-        mirror([1,0,0])
-        translate([-chanW-chanT/2-tw,8-tw/2,0])rotate([0,0,90])triArray(1,4.5,20-tw,1.5*tw,2*(sw1+epsilon),tw*0.75,-tw*0.75,-tw*0.75);
-        }    
-    }
-    translate([-backExt-rearSightDepth+triggerX,0,-triggerDrop+1]) rotate([90,0,180])trigger();      
 }
 
 rt = 38;
@@ -238,20 +150,108 @@ module triggerSwitch(){
         translate([-13,-12]) square([4,4],center=true);
         translate([-8,1])square([4,1],center=true);
         translate([-10.5,-6.5])rotate(-7)square([1,15],center=true);
-        translate([-7,3])rotate(180)square(18);
+        translate([-7,3])rotate(180)square([3,18]);
     }
     //mounting holes
-    translate([-5.5,10.5,0]){
+    mountHoles = [[-5.5,10.5,0],[5.5,-12.5,0]];
+    for (p=mountHoles) translate(p){
         cylinder(r=1.6,h=100,center=true);
-        unionMirror([0,0,1]) translate([0,0,5.5+tw]) cylinder(r=m3nr,h=100);
-    }
-    translate([5.5,-12.5,0]){
-        cylinder(r=1.6,h=100,center=true);
-        unionMirror([0,0,1]) translate([0,0,5.5+tw]) cylinder(r=m3nr,h=100);
+        mirror([0,0,1]) translate([0,0,5.5+tw]) cylinder(r=m3nr,h=100);
+        translate([0,0,5.5+tw]) cylinder(r=m3nr,h=100,$fn=6);
     }
 }
 
-if (is_undef($submodule)) difference(){
-    lower();
-    translate([0,-500,0])cube(1000,center=true);
+
+module lower(buttExt) {
+translate([-backExt-rearSightDepth+triggerX-triggerToButt,0,(bottom+hLower+10)/2]){
+    butt(buttExt);
+    
+}
+    difference(){ union(){ difference(){
+        union(){ 
+            difference()   { base(0); base(tw);}
+            intersection() { 
+                base(0); 
+                union(){
+                    triggerHole(tw); 
+                    triggerBlock();  
+                    translate([-40,0,-40])cube([50,2*(lw+tw),tw],center=true);
+                    }
+                }
+            translate([-backExt-rearSightDepth+50+lw+2.25,0,bottom+handHeight+lw+1])rotate([90,0,0])barFillet(2,[0,0,lw-tw+epsilon],[0,0,-lw+tw-epsilon]);
+            translate([-backExt-rearSightDepth+150-lw-1.25,0,bottom+handHeight+lw+1])rotate([90,0,0])barFillet(2,[0,0,lw-tw+epsilon],[0,0,-lw+tw-epsilon]);
+            
+        }
+        triggerHole(0);
+        triggerBlockHole();
+        rr=3;
+ if (quality>1) difference(){
+     translate([-backExt-rearSightDepth+65,0,hLower-triggerDrop+6])cube([28,50,32],center=true);
+ minkowski() {
+     intersection(){
+        difference(){ 
+               base(rr-epsilon);
+               triggerHole(rr-epsilon);
+        }
+        translate([-backExt-rearSightDepth+65,0,hLower-triggerDrop+6])cube([28,50,32],center=true);
+    }
+sphere(r=rr);
+}
+}
+        }
+        intersection(){
+            base(0);
+            union(){
+                unionMirror([0,1,0])translate([-backExt-rearSightDepth,lw-tw,0])stockThinning(lw-sw1);
+                translate([-backExt-rearSightDepth+triggerX-triggerToButt-20,0,(bottom+hLower+10)/2]) {rotate([90,90,0])channel(-gap-epsilon,120+tw);
+                difference(){
+                    buttHole(tw,adjLength+52);
+                    translate([70,0,0])buttHole(0,adjLength-20);    
+                    }
+                    }
+                }
+            }       
+    }
+    unionMirror([0,1,0])translate([-backExt-rearSightDepth,lw,0])stockThinning(lw-sw1);
+        translate([0,0,500])cube(1000,center=true);
+        translate([-backExt-rearSightDepth/2+t,0,tw])cube([rearSightDepth-t,2*hw+tw,-2*hLower],center=true);
+        mirror([0,0,1])rotate([0,90,0])upperBody(0);
+    translate([-backExt-rearSightDepth,0,0])rotate([90,0,0])translate([0,0,-lw-epsilon]) polyRoundExtrude([
+            [137-lw-tw,hLower-triggerTop-7,tw],
+            [127-lw-tw,hLower-tw,tw],
+            [150-lw-tw,hLower-tw,tw]],
+        2*(lw+epsilon),-tw/2,-tw/2,fn=10);
+    unionMirror([0,1,0])translate([-backExt-rearSightDepth,lw-tw/2,0])rotate([90,0,0]) translate([0,0,-tw/2-epsilon]) polyRoundExtrude([
+            [52+lw+tw,bottom+handHeight+lw+tw,tw],
+            [149-lw-tw,bottom+handHeight+lw+tw,tw],
+            [136-lw-tw,bottom+handHeight+lw+tw+10,70],
+            [134-lw-tw,hLower-triggerDrop+2,tw],
+            [110,hLower-triggerDrop-lw/2-tw,12.5+lw+tw],
+            [61+lw+tw,hLower-triggerDrop-lw/2-tw,tw],
+            [61+lw+tw,bottom+handHeight+lw+tw+10,40]],
+        tw+2*epsilon,-tw/2,-tw/2,fn=10);
+        translate([-backExt-rearSightDepth+triggerX-triggerToButt+chanT,0,(bottom+hLower+10)/2]) rotate([90,90,0]){
+            for (sn = [0,1]) translate([0,sn*(47+chanT/2),0]) {
+            channel(-gap-2*epsilon-tw,47);
+            rotate([0,0,90])translate([0,0,-1.5*tw-gap-3*epsilon])polyRoundExtrude([
+                    [chanT+tw/2,cf,cf],
+                    [47-tw/2-chanT/2,cf,cf],
+                    [47-tw/2-chanT/2,-cf,cf],
+                    [chanT+tw/2,-cf,cf]],
+                3*tw+2*gap+6*epsilon,-tw/2,-tw/2,fn=10);
+            }                        
+        }
+    translate([-backExt-rearSightDepth+triggerX-triggerToButt,0,(bottom+hLower+10)/2]) buttHole(-gap,adjLength);
+    translate([-backExt-rearSightDepth+triggerX-triggerToButt,0,(bottom+hLower+10)/2])rotate([90,90,0]){
+        translate([-chanW-chanT/2-tw,8-tw/2,0])rotate([0,0,90])triArray(1,5.5,20-tw,1.5*tw,2*(sw1+epsilon),tw*0.75,-tw*0.75,-tw*0.75);
+        mirror([1,0,0])
+        translate([-chanW-chanT/2-tw,8-tw/2,0])rotate([0,0,90])triArray(1,4.5,20-tw,1.5*tw,2*(sw1+epsilon),tw*0.75,-tw*0.75,-tw*0.75);
+        }    
+    }
+    translate([-backExt-rearSightDepth+triggerX,0,-triggerDrop+1]) rotate([90,0,180])trigger();      
+}
+
+if (is_undef($in_assembly)) difference(){
+    lower(0);    
+    *translate([0,-500,0])cube(1000,center=true);
 }
